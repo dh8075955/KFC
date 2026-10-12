@@ -1,0 +1,6 @@
+{
+  "name": "KFC Fried Chicken - Finger Lickin' Good Online Ordering",
+  "description": "Crispy, juicy fried chicken, family buckets, spicy zinger burgers, combos, and finger lickin' good deals delivered hot and fresh to your door.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
