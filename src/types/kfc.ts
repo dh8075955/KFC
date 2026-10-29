@@ -1,27 +1,27 @@
 export type MenuCategory = 
   | 'all'
+  | 'combos'
   | 'buckets'
   | 'chicken'
   | 'burgers'
-  | 'combos'
+  | 'rice'
   | 'sides'
-  | 'drinks'
-  | 'deals';
+  | 'drinks';
 
-export type RecipeType = 'original' | 'crispy' | 'spicy_nashville' | 'sweet_chili';
+export type RecipeType = 'crispy_spicy' | 'original' | 'cheese' | 'sweet_chili';
 
 export interface MenuItem {
   id: string;
   name: string;
-  category: 'buckets' | 'chicken' | 'burgers' | 'combos' | 'sides' | 'drinks';
+  category: 'combos' | 'buckets' | 'chicken' | 'burgers' | 'rice' | 'sides' | 'drinks';
   description: string;
-  price: number;
+  price: number; // in VNĐ
   originalPrice?: number;
   image: string;
   calories?: number;
   pieces?: number;
   isSpicy?: boolean;
-  spiceLevel?: 1 | 2 | 3; // 1 = mild, 2 = medium, 3 = fire
+  spiceLevel?: 1 | 2 | 3;
   isBestSeller?: boolean;
   isNew?: boolean;
   isDeal?: boolean;
@@ -54,27 +54,59 @@ export interface DealPromo {
   title: string;
   subtitle: string;
   discountPercent?: number;
-  discountAmount?: number;
-  minOrder?: number;
+  discountAmount?: number; // in VNĐ
+  minOrder?: number; // in VNĐ
   badge: string;
   bannerColor: string;
 }
 
 export type OrderType = 'delivery' | 'pickup' | 'dinein';
 
+export interface DeliveryAddress {
+  id: string;
+  title: string; // Nhà riêng, Công ty, v.v.
+  recipientName: string;
+  phone: string;
+  street: string;
+  ward: string;
+  district: string;
+  city: string;
+  notes?: string;
+  isDefault: boolean;
+}
+
+export interface WalletTransaction {
+  id: string;
+  amount: number;
+  type: 'topup' | 'payment';
+  description: string;
+  createdAt: string;
+  method: string;
+}
+
 export interface OrderDetails {
   orderId: string;
+  orderTitle?: string;
   customerName: string;
   phone: string;
   address: string;
+  notes?: string;
   orderType: OrderType;
   items: CartItem[];
   subtotal: number;
   discount: number;
   deliveryFee: number;
   total: number;
-  paymentMethod: 'cod' | 'vietqr' | 'card' | 'momo';
+  paymentMethod: 'cod' | 'vietqr' | 'momo' | 'wallet' | 'card';
+  isPaid?: boolean;
+  qrExpiresAt?: number;
   status: 'received' | 'cooking' | 'delivering' | 'delivered';
   placedAt: string;
   estimatedDeliveryMins: number;
+  estimatedDeliveryTime?: string;
+  courier?: {
+    name: string;
+    phone: string;
+    vehicle: string;
+  };
 }

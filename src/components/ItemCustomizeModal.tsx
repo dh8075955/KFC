@@ -17,14 +17,14 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
   onAddToCart,
 }) => {
   const [recipe, setRecipe] = useState<RecipeType>(
-    item?.allowedRecipes?.[0] || 'original'
+    item?.allowedRecipes?.[0] || 'crispy_spicy'
   );
   const [selectedSauces, setSelectedSauces] = useState<string[]>([
-    "Colonel's Secret Sauce"
+    'Sốt Bí Truyền Colonel'
   ]);
-  const [selectedDrink, setSelectedDrink] = useState<string>('Pepsi Ice Cold (Medium)');
+  const [selectedDrink, setSelectedDrink] = useState<string>('Pepsi tươi mát lạnh');
   const [selectedSide, setSelectedSide] = useState<string>(
-    item?.includedSides?.[0] || 'Secret Recipe Fries'
+    item?.includedSides?.[0] || 'Khoai tây chiên vừa'
   );
   const [notes, setNotes] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -32,18 +32,18 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
   if (!isOpen || !item) return null;
 
   const drinksList = [
-    'Pepsi Ice Cold (Medium)',
-    'Pepsi Zero Sugar (Medium)',
-    'Mountain Dew Citrus',
-    'Iced Sweet Lemon Tea',
-    'Bottled Spring Water',
+    'Pepsi tươi mát lạnh',
+    'Pepsi không calo (Zero)',
+    'Mirinda Cam',
+    '7Up thanh mát',
+    'Trà đào hạt chia (+10k)',
   ];
 
   const sidesList = [
-    'Secret Recipe Fries',
-    'Mashed Potatoes & Gravy',
-    'Creamy Coleslaw',
-    'Warm Buttermilk Biscuit (2 Pcs)',
+    'Khoai tây chiên vừa',
+    'Khoai tây nghiền & sốt Gravy',
+    'Bắp cải trộn Coleslaw',
+    'Bánh trứng Egg Tart (+15k)',
   ];
 
   const handleToggleSauce = (sauceName: string) => {
@@ -73,6 +73,19 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
     onClose();
   };
 
+  const getCategoryLabel = (cat: string) => {
+    switch (cat) {
+      case 'combos': return 'COMBO TIẾT KIỆM';
+      case 'buckets': return 'XÔ GÀ TIỆC TÙNG';
+      case 'chicken': return 'GÀ RÁN GIÒN TAN';
+      case 'burgers': return 'BURGER & WRAP';
+      case 'rice': return 'CƠM GÀ KFC';
+      case 'sides': return 'MÓN ĂN PHỤ';
+      case 'drinks': return 'THỨC UỐNG';
+      default: return cat.toUpperCase();
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/75 backdrop-blur-sm animate-in fade-in duration-150 overflow-y-auto">
       <div className="bg-white border border-zinc-200 rounded-3xl max-w-xl w-full text-zinc-900 shadow-2xl overflow-hidden my-6">
@@ -96,7 +109,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
           <div className="absolute bottom-4 left-6 right-6 text-white">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-xs uppercase font-extrabold px-2.5 py-0.5 rounded bg-red-600 text-white shadow-2xs">
-                {item.category.toUpperCase()}
+                {getCategoryLabel(item.category)}
               </span>
               {item.calories && (
                 <span className="text-xs font-mono font-bold text-zinc-200">
@@ -116,23 +129,23 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
             {item.description}
           </p>
 
-          {/* Recipe options if applicable */}
+          {/* Recipe options */}
           {item.allowedRecipes && item.allowedRecipes.length > 1 && (
             <div className="space-y-2.5">
               <label className="text-xs font-extrabold uppercase tracking-wider text-zinc-800">
-                Choose Recipe & Coating
+                Chọn Vị Gà Rán
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {item.allowedRecipes.map((r) => {
                   const isSelected = recipe === r;
                   const label =
-                    r === 'original'
-                      ? 'Original Recipe (11 Herbs)'
-                      : r === 'crispy'
-                      ? 'Extra Crispy Flakes'
-                      : r === 'spicy_nashville'
-                      ? 'Nashville Hot Fire 🔥'
-                      : 'Sweet Chili';
+                    r === 'crispy_spicy'
+                      ? 'Gà Giòn Cay 🔥'
+                      : r === 'original'
+                      ? 'Gà Truyền Thống'
+                      : r === 'cheese'
+                      ? 'Lắc Phô Mai 🧀'
+                      : 'Sốt Chua Ngọt';
                   return (
                     <button
                       key={r}
@@ -156,7 +169,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
               <label className="text-xs font-extrabold uppercase tracking-wider text-zinc-800">
-                Choose Dipping Sauces (Up to 2)
+                Chọn Sốt Chấm (Tối đa 2 loại)
               </label>
               <span className="text-[11px] text-zinc-500 font-semibold">
                 {selectedSauces.length}/2
@@ -187,7 +200,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
           {item.includedSides && (
             <div className="space-y-2.5">
               <label className="text-xs font-extrabold uppercase tracking-wider text-zinc-800">
-                Choose Side
+                Chọn Món Ăn Kèm Trong Combo
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {sidesList.map((s) => (
@@ -211,7 +224,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
           {item.includedDrinks && (
             <div className="space-y-2.5">
               <label className="text-xs font-extrabold uppercase tracking-wider text-zinc-800">
-                Choose Beverage
+                Chọn Thức Uống Trong Combo
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {drinksList.map((d) => (
@@ -234,11 +247,11 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
           {/* Special Kitchen Notes */}
           <div className="space-y-1.5">
             <label className="text-xs font-extrabold uppercase tracking-wider text-zinc-800">
-              Special Kitchen Request (Optional)
+              Ghi Chú Cho Nhà Bếp (Tùy chọn)
             </label>
             <input
               type="text"
-              placeholder="e.g. Extra napkins, sauce on the side, no ice"
+              placeholder="e.g. Nhiều tương ớt, không lấy đá, chiên giòn kỹ..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs text-zinc-900 placeholder-zinc-400 focus:outline-none focus:border-red-600 focus:bg-white"
@@ -255,7 +268,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
               disabled={quantity <= 1}
-              className="text-zinc-500 hover:text-zinc-900 disabled:opacity-30 p-1"
+              className="text-zinc-500 hover:text-zinc-950 disabled:opacity-30 p-1"
             >
               <Minus className="w-4 h-4" />
             </button>
@@ -264,7 +277,7 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
             </span>
             <button
               onClick={() => setQuantity(quantity + 1)}
-              className="text-zinc-500 hover:text-zinc-900 p-1"
+              className="text-zinc-500 hover:text-zinc-950 p-1"
             >
               <Plus className="w-4 h-4" />
             </button>
@@ -275,9 +288,9 @@ export const ItemCustomizeModal: React.FC<ItemCustomizeModalProps> = ({
             onClick={handleAddToCart}
             className="flex-1 py-3.5 px-6 rounded-2xl bg-red-600 hover:bg-red-700 font-extrabold text-sm text-white shadow-xl shadow-red-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-between border border-red-700"
           >
-            <span>Add to Bucket Bag</span>
+            <span>Thêm Vào Giỏ Hàng</span>
             <span className="font-mono font-extrabold text-base">
-              ${(item.price * quantity).toFixed(2)}
+              {(item.price * quantity).toLocaleString('vi-VN')} ₫
             </span>
           </button>
 

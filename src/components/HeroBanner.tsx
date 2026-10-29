@@ -4,15 +4,17 @@ import { Sparkles, Flame, Clock, Award, ShieldCheck, ArrowRight } from 'lucide-r
 interface HeroBannerProps {
   onBuildBucket: () => void;
   onBrowseMenu: () => void;
+  onOpenVouchers: () => void;
 }
 
 export const HeroBanner: React.FC<HeroBannerProps> = ({
   onBuildBucket,
   onBrowseMenu,
+  onOpenVouchers,
 }) => {
   return (
     <section className="relative overflow-hidden bg-white border-b border-zinc-200 py-12 md:py-20">
-      {/* Background radial accent with warm fried chicken glow */}
+      {/* Background radial accent */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[500px] bg-red-100/60 blur-[130px] rounded-full pointer-events-none" />
       <div className="absolute top-0 right-0 w-80 h-80 bg-amber-100/50 blur-[100px] rounded-full pointer-events-none" />
 
@@ -25,23 +27,23 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             {/* Top pill badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-50 border border-red-200 text-red-600 text-xs font-extrabold uppercase tracking-widest shadow-2xs">
               <Flame className="w-4 h-4 text-red-600 animate-bounce" />
-              <span>11 Secret Herbs & Spices • Pressure Fried Golden</span>
+              <span>11 Thảo Mộc & Gia Vị Bí Truyền • Chiên Áp Suất Giòn Tan</span>
             </div>
 
             {/* Headline */}
             <h1 className="text-4xl sm:text-6xl xl:text-7xl font-display uppercase tracking-tight text-zinc-950 leading-[1.05]">
-              CRISPY, JUICY, <br />
+              GIÒN RỤM, MỌNG NƯỚC, <br />
               <span className="text-red-600 underline decoration-amber-400 decoration-wavy decoration-4">
-                FINGER LICKIN&apos;
+                VỊ NGON TRÊN
               </span> <br />
-              FRIED CHICKEN.
+              TỪNG NGÓN TAY.
             </h1>
 
             {/* Subtitle */}
             <p className="text-zinc-600 text-base sm:text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
-              Hand-breaded in small batches with our legendary top-secret recipe. 
-              Fried to golden, crackling crunch on the outside and tender, steaming juiciness inside. 
-              Delivered piping hot to your table.
+              Gà rán tươi nguyên bản tẩm bột thủ công trực tiếp tại bếp mỗi ngày. 
+              Chiên áp suất giữ trọn độ mềm mọng nước bên trong và lớp da giòn tan nức tiếng. 
+              Giao hàng tận nơi siêu tốc 30 phút nóng hổi đến tay bạn.
             </p>
 
             {/* CTAs */}
@@ -50,15 +52,15 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 onClick={onBuildBucket}
                 className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-extrabold text-base shadow-xl shadow-red-600/30 hover:scale-[1.03] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group border border-red-700"
               >
-                <span>🍗 Build Your Custom Bucket</span>
+                <span>🍗 Tự Phối Xô Gà Của Riêng Bạn</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
 
               <button
-                onClick={onBrowseMenu}
+                onClick={onOpenVouchers}
                 className="w-full sm:w-auto px-6 py-4 rounded-2xl bg-zinc-50 hover:bg-zinc-100 border border-zinc-300 text-zinc-900 font-bold text-base transition-all flex items-center justify-center gap-2 shadow-2xs"
               >
-                <span>Browse Full Menu</span>
+                <span>Săn Voucher Giảm Giá</span>
               </button>
             </div>
 
@@ -69,8 +71,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                   <Clock className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-zinc-900">30 Min Hot</div>
-                  <div className="text-[11px] text-zinc-500">Guaranteed delivery</div>
+                  <div className="text-xs font-bold text-zinc-900">30 Phút Giao</div>
+                  <div className="text-[11px] text-zinc-500">Cam kết nóng giòn</div>
                 </div>
               </div>
 
@@ -79,8 +81,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                   <Award className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-zinc-900">100% Fresh</div>
-                  <div className="text-[11px] text-zinc-500">Never frozen chicken</div>
+                  <div className="text-xs font-bold text-zinc-900">Gà Tươi 100%</div>
+                  <div className="text-[11px] text-zinc-500">Không dùng thịt đông lạnh</div>
                 </div>
               </div>
 
@@ -89,8 +91,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                   <ShieldCheck className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-zinc-900">Original 1939</div>
-                  <div className="text-[11px] text-zinc-500">Authentic recipe</div>
+                  <div className="text-xs font-bold text-zinc-900">Chuẩn 1939</div>
+                  <div className="text-[11px] text-zinc-500">Công thức Colonel</div>
                 </div>
               </div>
             </div>
@@ -101,11 +103,10 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
           <div className="lg:col-span-5 relative">
             <div className="relative mx-auto max-w-md lg:max-w-none">
               
-              {/* Outer decorative frame with KFC red glow */}
               <div className="relative rounded-3xl overflow-hidden border-4 border-red-600 shadow-2xl shadow-red-600/20 group bg-zinc-950">
                 <img
                   src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=1000&q=80"
-                  alt="KFC Fried Chicken Bucket Feast"
+                  alt="KFC Việt Nam Gà Rán Giòn Cay"
                   className="w-full h-[380px] sm:h-[440px] object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/85 via-zinc-950/20 to-transparent" />
@@ -113,27 +114,27 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
                 {/* Floating promo badge */}
                 <div className="absolute top-4 left-4 bg-red-600 text-white px-3.5 py-1.5 rounded-xl font-display tracking-wider text-sm shadow-lg flex items-center gap-1.5 border border-red-500">
                   <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>MOST ORDERED MEAL</span>
+                  <span>MÓN BÁN CHẠY NHẤT</span>
                 </div>
 
-                {/* Price tag pill */}
+                {/* Price tag pill in VNĐ */}
                 <div className="absolute top-4 right-4 bg-white/95 backdrop-blur-md text-zinc-950 px-3 py-1.5 rounded-xl font-mono text-sm font-extrabold shadow-md border border-zinc-200">
-                  <span className="text-red-600 text-xs font-sans uppercase font-bold mr-1">from</span>
-                  $19.99
+                  <span className="text-red-600 text-xs font-sans uppercase font-bold mr-1">chỉ từ</span>
+                  89.000 ₫
                 </div>
 
                 {/* Bottom caption overlay */}
                 <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md border border-zinc-200 p-4 rounded-2xl shadow-lg">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="font-extrabold text-zinc-950 text-base">The 8-Pc Original Recipe Bucket</h4>
-                      <p className="text-xs text-zinc-600">Drumsticks, Thighs & Breasts + 2 Large Sides</p>
+                      <h4 className="font-extrabold text-zinc-950 text-base">Xô Gà 5 Miếng Chuẩn Vị KFC</h4>
+                      <p className="text-xs text-zinc-600">Đùi, má đùi, cánh giòn cay & sốt chấm bí truyền</p>
                     </div>
                     <button
                       onClick={onBuildBucket}
                       className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-extrabold uppercase shrink-0 transition-colors shadow-md shadow-red-600/20"
                     >
-                      Customize
+                      Tùy Biến
                     </button>
                   </div>
                 </div>
@@ -144,8 +145,8 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
               <div className="absolute -bottom-6 -left-4 sm:-left-6 bg-white border border-zinc-200 px-4 py-3 rounded-2xl shadow-xl flex items-center gap-3">
                 <span className="text-2xl">⭐</span>
                 <div>
-                  <div className="text-xs font-extrabold text-zinc-900">4.9 / 5 Rating</div>
-                  <div className="text-[10px] text-zinc-500">Over 50,000+ happy chicken lovers</div>
+                  <div className="text-xs font-extrabold text-zinc-900">4.9 / 5 Đánh giá</div>
+                  <div className="text-[10px] text-zinc-500">Hơn 500.000+ tín đồ gà rán tại Việt Nam</div>
                 </div>
               </div>
 

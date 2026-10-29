@@ -19,15 +19,15 @@ export const MenuGrid: React.FC<MenuGridProps> = ({
     return (
       <div className="py-20 text-center space-y-4 bg-white rounded-3xl border border-zinc-200 p-8 shadow-xs">
         <div className="text-5xl">🍗</div>
-        <h3 className="text-xl font-extrabold text-zinc-950">No Fried Chicken Found</h3>
+        <h3 className="text-xl font-extrabold text-zinc-950">Không Tìm Thấy Món Phù Hợp</h3>
         <p className="text-zinc-500 text-sm max-w-sm mx-auto">
-          We couldn&apos;t find any chicken matching your search or filters. Try adjusting your preferences!
+          Rất tiếc, không có món gà rán nào khớp với từ khóa hoặc bộ lọc của bạn. Thử tìm kiếm tên khác nhé!
         </p>
         <button
           onClick={onResetFilters}
           className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 font-extrabold text-sm text-white transition-colors shadow-md shadow-red-600/20"
         >
-          Reset Filters & Show All
+          Đặt Lại Bộ Lọc & Xem Tất Cả
         </button>
       </div>
     );
@@ -58,18 +58,18 @@ export const MenuGrid: React.FC<MenuGridProps> = ({
               {item.isBestSeller && (
                 <span className="px-2.5 py-1 rounded-lg bg-amber-500 text-zinc-950 font-extrabold text-[10px] tracking-wider uppercase shadow-md flex items-center gap-1">
                   <Star className="w-3 h-3 fill-zinc-950" />
-                  Best Seller
+                  Bán Chạy Nhất
                 </span>
               )}
               {item.isNew && (
                 <span className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-extrabold text-[10px] tracking-wider uppercase shadow-md flex items-center gap-1">
                   <Sparkles className="w-3 h-3" />
-                  New
+                  Món Mới
                 </span>
               )}
               {item.isDeal && (
                 <span className="px-2.5 py-1 rounded-lg bg-red-600 text-white font-extrabold text-[10px] tracking-wider uppercase shadow-md border border-red-700">
-                  Hot Deal 🔥
+                  Ưu Đãi Hot 🔥
                 </span>
               )}
             </div>
@@ -85,7 +85,7 @@ export const MenuGrid: React.FC<MenuGridProps> = ({
             {/* Pieces count pill if chicken */}
             {item.pieces && (
               <div className="absolute bottom-3 left-3 bg-white/95 backdrop-blur-sm text-zinc-900 text-xs font-extrabold px-2.5 py-1 rounded-lg shadow-sm">
-                {item.pieces} Pieces
+                {item.pieces} Miếng
               </div>
             )}
 
@@ -115,17 +115,17 @@ export const MenuGrid: React.FC<MenuGridProps> = ({
             <div className="pt-3 border-t border-zinc-100 flex items-center justify-between gap-2">
               <div className="space-y-0.5">
                 <div className="flex items-baseline gap-2">
-                  <span className="text-lg sm:text-xl font-extrabold font-mono text-zinc-950">
-                    ${item.price.toFixed(2)}
+                  <span className="text-base sm:text-lg font-extrabold font-mono text-zinc-950">
+                    {item.price.toLocaleString('vi-VN')} ₫
                   </span>
                   {item.originalPrice && (
                     <span className="text-xs text-zinc-400 line-through font-mono">
-                      ${item.originalPrice.toFixed(2)}
+                      {item.originalPrice.toLocaleString('vi-VN')} ₫
                     </span>
                   )}
                 </div>
                 <div className="text-[10px] text-red-600 uppercase font-extrabold">
-                  Hot & Fresh
+                  Nóng giòn giao nhanh
                 </div>
               </div>
 
@@ -136,13 +136,13 @@ export const MenuGrid: React.FC<MenuGridProps> = ({
                   onClick={() => onSelectItem(item)}
                   className="px-3 py-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-extrabold transition-colors"
                 >
-                  Customize
+                  Tùy Chọn
                 </button>
 
                 <button
                   type="button"
                   onClick={() => onQuickAdd(item)}
-                  title="Quick add to bucket bag"
+                  title="Thêm nhanh vào giỏ hàng"
                   className="p-2 rounded-xl bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/25 hover:scale-105 active:scale-95 transition-all"
                 >
                   <Plus className="w-4 h-4" />

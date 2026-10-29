@@ -4,28 +4,28 @@ import { ShieldCheck, Sparkles } from 'lucide-react';
 export const HeritageSection: React.FC = () => {
   const pillars = [
     {
-      title: '11 Secret Herbs & Spices',
-      desc: 'The original 1939 proprietary blend locked in a Kentucky vault. An irresistible balance of savory, peppery, and aromatic seasoning.',
+      title: '11 Loại Thảo Mộc & Gia Vị',
+      desc: 'Công thức độc quyền từ năm 1939 được cất giữ trong két sắt bảo mật tại Kentucky. Sự hòa quyện hoàn hảo giữa vị thơm thảo mộc và hạt tiêu cay nhẹ.',
       icon: '🌿',
-      tag: 'SECRET RECIPE',
+      tag: 'CÔNG THỨC BÍ MẬT',
     },
     {
-      title: 'Hand-Breaded in Every Store',
-      desc: 'Our chicken isn’t made in a factory. Our cooks roll and toss fresh chicken in flour and seasoning right in our restaurant kitchen before frying.',
+      title: 'Tẩm Bột Thủ Công Tại Bếp',
+      desc: 'Gà tại KFC không làm sẵn từ nhà máy. Các đầu bếp lăn và tẩm bột thủ công tươi mới mỗi ngày ngay tại gian bếp cửa hàng trước khi chiên.',
       icon: '👨‍🍳',
-      tag: 'FRESH DAILY',
+      tag: 'TƯƠI MỖI NGÀY',
     },
     {
-      title: 'Patented Pressure Frying',
-      desc: 'Our specialized pressure fryers seal the crust instantly, locking in the natural juices while ensuring legendary crispness.',
+      title: 'Chiên Áp Suất Độc Quyền',
+      desc: 'Nồi chiên áp suất chuyên dụng giúp khóa chặt lớp da giòn rụm bên ngoài và giữ lại toàn bộ độ ẩm mọng nước ngọt ngào của thịt gà bên trong.',
       icon: '🔥',
-      tag: 'JUICY GUARANTEE',
+      tag: 'MỌNG NƯỚC 100%',
     },
     {
-      title: '100% Real Farm Chicken',
-      desc: 'Whole muscle chicken raised without routine antibiotics or added hormones. Prepared with care for the ultimate fast feast.',
+      title: 'Thịt Gà Nông Trại Chuẩn Sạch',
+      desc: 'Nguồn thịt gà tươi từ các trang trại đạt chuẩn VietGAP, không chất kích thích tăng trọng. Kiểm định nghiêm ngặt an toàn vệ sinh thực phẩm.',
       icon: '🍗',
-      tag: 'QUALITY FIRST',
+      tag: 'CHẤT LƯỢNG HÀNG ĐẦU',
     },
   ];
 
@@ -36,16 +36,16 @@ export const HeritageSection: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-red-100 text-red-700 border border-red-200 text-xs font-extrabold uppercase tracking-widest shadow-2xs">
             <Sparkles className="w-3.5 h-3.5 text-red-600" />
-            <span>The Colonel&apos;s Heritage & Craft</span>
+            <span>Di Sản & Nghệ Thuật Nấu Nướng Của Đại Tá Sanders</span>
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-display uppercase tracking-wide text-zinc-950">
-            WHY OUR FRIED CHICKEN IS <br />
-            <span className="text-red-600">UNMATCHED IN CRUNCH & FLAVOR</span>
+            TẠI SAO GÀ RÁN KFC VIỆT NAM <br />
+            <span className="text-red-600">LUÔN GIÒN TAN & ĐẬM ĐÀ KHÓ CƯỠNG</span>
           </h2>
 
           <p className="text-zinc-600 text-sm sm:text-base leading-relaxed">
-            Since 1939, we haven&apos;t taken shortcuts. Every drumstick, wing, and breast is made the hard way — fresh, hand-breaded, and pressure-fried to gold perfection.
+            Từ năm 1939 đến nay, chúng tôi không bao giờ chọn con đường dễ dàng. Từng chiếc đùi, cánh gà đều được làm tỉ mỉ, chiên áp suất nóng hổi phục vụ tận tay người Việt.
           </p>
         </div>
 
@@ -75,7 +75,7 @@ export const HeritageSection: React.FC = () => {
               </div>
 
               <div className="pt-4 mt-4 border-t border-zinc-100 flex items-center gap-1.5 text-xs text-red-600 font-bold">
-                <span>Colonel Approved</span>
+                <span>Chứng Nhận Chuẩn Vị KFC</span>
                 <ShieldCheck className="w-3.5 h-3.5" />
               </div>
             </div>
@@ -86,10 +86,10 @@ export const HeritageSection: React.FC = () => {
         <div className="mt-14 bg-gradient-to-r from-red-700 via-red-600 to-red-800 text-white border-2 border-red-800 rounded-3xl p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-red-600/20">
           <div className="space-y-2 text-center md:text-left">
             <div className="font-display text-2xl sm:text-3xl uppercase tracking-wide">
-              &quot;I MADE A RESOLVE THEN THAT I WAS GOING TO AMOUNT TO SOMETHING IF I COULD.&quot;
+              &quot;VỊ NGON TRÊN TỪNG NGÓN TAY - CHẤT LƯỢNG TẠO NÊN NIỀM TIN.&quot;
             </div>
             <p className="text-xs text-red-100 font-medium">
-              — Colonel Harland Sanders, Founder of Kentucky Fried Chicken
+              — Đại tá Harland Sanders, Nhà sáng lập thương hiệu Kentucky Fried Chicken
             </p>
           </div>
 
@@ -98,8 +98,8 @@ export const HeritageSection: React.FC = () => {
               KFC
             </div>
             <div className="text-left font-display uppercase tracking-wide text-xs text-zinc-900">
-              EST. 1939 <br />
-              <span className="text-red-600 font-sans font-bold text-[10px]">CORBIN, KENTUCKY</span>
+              KFC VIỆT NAM <br />
+              <span className="text-red-600 font-sans font-bold text-[10px]">HƠN 150 CỬA HÀNG TOÀN QUỐC</span>
             </div>
           </div>
         </div>

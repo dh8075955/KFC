@@ -28,21 +28,21 @@ export const DealsBar: React.FC<DealsBarProps> = ({ onApplyDeal, activePromoCode
             </div>
             <div>
               <h3 className="font-display uppercase tracking-wide text-lg text-zinc-950">
-                TODAY&apos;S HOTTEST DEALS & COUPONS
+                ƯU ĐÃI & VOUCHER GIẢM GIÁ HÔM NAY
               </h3>
               <p className="text-xs text-zinc-500">
-                Tap &apos;Apply&apos; to instantly add promotional savings to your bucket bag
+                Nhấn &apos;Áp Dụng&apos; để nhận ngay ưu đãi giảm giá vào giỏ hàng của bạn
               </p>
             </div>
           </div>
           <div className="text-xs text-red-700 font-extrabold bg-red-50 border border-red-200 px-3.5 py-1 rounded-full flex items-center gap-1.5 shadow-2xs">
             <Sparkles className="w-3.5 h-3.5 text-red-600" />
-            <span>Limited Time Offers</span>
+            <span>Ưu Đãi Có Hạn Tuần Này</span>
           </div>
         </div>
 
         {/* Coupon Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {FEATURED_DEALS.map((deal) => {
             const isApplied = activePromoCode === deal.code;
             return (
@@ -58,24 +58,24 @@ export const DealsBar: React.FC<DealsBarProps> = ({ onApplyDeal, activePromoCode
                     <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-zinc-100 text-zinc-800">
                       {deal.badge}
                     </span>
-                    <span className="text-xs font-mono font-semibold text-zinc-500">
-                      Min. ${deal.minOrder}
+                    <span className="text-xs font-mono font-bold text-zinc-500">
+                      Đơn từ {deal.minOrder ? (deal.minOrder / 1000) + 'k' : '0k'}
                     </span>
                   </div>
-                  <h4 className="font-extrabold text-zinc-950 text-sm sm:text-base tracking-tight">
+                  <h4 className="font-extrabold text-zinc-950 text-sm tracking-tight">
                     {deal.title}
                   </h4>
-                  <p className="text-xs text-zinc-600">
+                  <p className="text-xs text-zinc-600 line-clamp-2">
                     {deal.subtitle}
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-zinc-100">
-                  <div className="flex items-center gap-1.5 bg-zinc-50 px-2.5 py-1.5 rounded-lg border border-zinc-200 font-mono text-xs font-bold text-red-600">
+                  <div className="flex items-center gap-1.5 bg-zinc-50 px-2 py-1.5 rounded-lg border border-zinc-200 font-mono text-xs font-bold text-red-600">
                     <span>{deal.code}</span>
                     <button
                       onClick={() => handleCopy(deal.code)}
-                      title="Copy code"
+                      title="Sao chép mã"
                       className="text-zinc-400 hover:text-zinc-700 p-0.5"
                     >
                       {copiedCode === deal.code ? (
@@ -94,7 +94,7 @@ export const DealsBar: React.FC<DealsBarProps> = ({ onApplyDeal, activePromoCode
                         : 'bg-red-600 hover:bg-red-700 text-white shadow-sm shadow-red-600/20'
                     }`}
                   >
-                    {isApplied ? '✓ Applied' : 'Apply Coupon'}
+                    {isApplied ? '✓ Đã Áp Dụng' : 'Áp Dụng'}
                   </button>
                 </div>
               </div>

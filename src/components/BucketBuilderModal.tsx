@@ -14,34 +14,33 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
   onClose,
   onAddCustomBucket,
 }) => {
-  const [bucketSize, setBucketSize] = useState<6 | 10 | 14>(10);
-  const [recipe, setRecipe] = useState<RecipeType>('original');
+  const [bucketSize, setBucketSize] = useState<5 | 8 | 12>(8);
+  const [recipe, setRecipe] = useState<RecipeType>('crispy_spicy');
   
   // Piece allocation
   const [pieces, setPieces] = useState({
-    drumsticks: 4,
+    drumsticks: 3,
     thighs: 3,
-    breasts: 2,
+    breasts: 1,
     wings: 1,
   });
 
   // Selected sides (pick 2)
   const availableSides = [
-    { id: 'potatoes', name: 'Mashed Potatoes & Gravy' },
-    { id: 'fries', name: 'Secret Recipe Fries' },
-    { id: 'coleslaw', name: 'Creamy Coleslaw' },
-    { id: 'biscuits', name: 'Warm Buttermilk Biscuits (4 Pcs)' },
-    { id: 'mac', name: 'Mac & Cheese' },
+    { id: 'fries', name: 'Khoai tây chiên (Lớn)' },
+    { id: 'coleslaw', name: 'Bắp cải trộn Coleslaw' },
+    { id: 'tart', name: 'Bánh trứng Egg Tart (2 cái)' },
+    { id: 'potatoes', name: 'Khoai tây nghiền & Sốt Gravy' },
   ];
   const [selectedSides, setSelectedSides] = useState<string[]>([
-    'Mashed Potatoes & Gravy',
-    'Secret Recipe Fries',
+    'Khoai tây chiên (Lớn)',
+    'Bắp cải trộn Coleslaw',
   ]);
 
   // Selected sauces (up to 3)
   const [selectedSauces, setSelectedSauces] = useState<string[]>([
-    "Colonel's Secret Sauce",
-    'Smoky Kentucky BBQ',
+    'Sốt Bí Truyền Colonel',
+    'Tương Ớt Cay KFC',
   ]);
 
   if (!isOpen) return null;
@@ -51,10 +50,10 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
 
   const getPrice = () => {
     switch (bucketSize) {
-      case 6: return 16.99;
-      case 10: return 24.99;
-      case 14: return 33.99;
-      default: return 24.99;
+      case 5: return 169000;
+      case 8: return 259000;
+      case 12: return 389000;
+      default: return 259000;
     }
   };
 
@@ -92,13 +91,20 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
   };
 
   const handleSaveAndAdd = () => {
+    const recipeName =
+      recipe === 'crispy_spicy'
+        ? 'Giòn Cay'
+        : recipe === 'cheese'
+        ? 'Lắc Phô Mai'
+        : 'Truyền Thống 11 Thảo Mộc';
+
     const customCartItem: CartItem = {
       cartId: `custom-bucket-${Date.now()}`,
       item: {
         id: `custom-bkt-${bucketSize}`,
-        name: `Custom ${bucketSize}-Piece Signature Bucket`,
+        name: `Xô Gà Tự Chọn ${bucketSize} Miếng (${recipeName})`,
         category: 'buckets',
-        description: `${bucketSize} pieces of ${recipe === 'original' ? 'Original Recipe' : recipe === 'crispy' ? 'Extra Crispy' : 'Nashville Hot'} fried chicken with 2 large sides and signature sauces.`,
+        description: `Xô ${bucketSize} miếng gà ${recipeName} tự chọn đùi/cánh/ức kèm 2 món ăn phụ và sốt chấm độc quyền.`,
         price: getPrice(),
         image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=800&q=80',
         pieces: bucketSize,
@@ -108,7 +114,7 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
       selectedPieces: pieces,
       selectedSide: selectedSides.join(', '),
       selectedSauces,
-      notes: `Sides: ${selectedSides.join(', ')} | Sauces: ${selectedSauces.join(', ')}`,
+      notes: `Món phụ: ${selectedSides.join(', ')} | Sốt: ${selectedSauces.join(', ')}`,
       totalPrice: getPrice(),
     };
 
@@ -120,7 +126,7 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/75 backdrop-blur-sm animate-in fade-in duration-200 overflow-y-auto">
       <div className="bg-white border border-zinc-200 rounded-3xl max-w-3xl w-full text-zinc-900 shadow-2xl overflow-hidden my-6">
         
-        {/* Header with KFC Red gradient & 3 stripes */}
+        {/* Header */}
         <div className="relative bg-gradient-to-r from-red-700 via-red-600 to-red-700 p-6 flex items-center justify-between text-white">
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-2xl bg-white text-red-600 font-display text-2xl flex items-center justify-center shadow-md border-2 border-red-800">
@@ -129,14 +135,14 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="font-display uppercase text-2xl tracking-wide">
-                  BUILD YOUR CUSTOM BUCKET
+                  TỰ PHỐI XÔ GÀ CỦA BẠN
                 </h3>
                 <span className="text-[10px] uppercase font-extrabold bg-amber-400 text-zinc-950 px-2 py-0.5 rounded shadow-2xs">
-                  DIY Feast
+                  Combo Tự Chọn
                 </span>
               </div>
               <p className="text-xs text-red-100 font-medium">
-                Choose your pieces, legendary recipe coating, 2 sides & dipping sauces
+                Tự do chọn đùi, cánh, má đùi gà + 2 món ăn phụ và sốt chấm yêu thích
               </p>
             </div>
           </div>
@@ -157,24 +163,24 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-sm font-extrabold uppercase tracking-wider text-zinc-800 flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">1</span>
-                Select Bucket Size
+                Chọn Kích Cỡ Xô Gà
               </label>
-              <span className="text-xs text-zinc-500 font-medium">Feeds 2 - 6 people</span>
+              <span className="text-xs text-zinc-500 font-medium">Phù hợp từ 1 đến 6 người</span>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               {[
-                { size: 6, label: '6 Pieces', price: '$16.99', sub: 'Feeds 1-2' },
-                { size: 10, label: '10 Pieces', price: '$24.99', sub: 'Feeds 3-4 (Popular ⭐)' },
-                { size: 14, label: '14 Pieces', price: '$33.99', sub: 'Feeds 5-6 Party' },
+                { size: 5, label: 'Xô 5 Miếng', price: '169.000 ₫', sub: 'Cho 1 - 2 người' },
+                { size: 8, label: 'Xô 8 Miếng', price: '259.000 ₫', sub: 'Cho 3 - 4 người (Bán chạy ⭐)' },
+                { size: 12, label: 'Xô 12 Miếng', price: '389.000 ₫', sub: 'Đại tiệc 5 - 6 người' },
               ].map((opt) => (
                 <button
                   key={opt.size}
                   onClick={() => {
-                    setBucketSize(opt.size as 6 | 10 | 14);
-                    if (opt.size === 6) setPieces({ drumsticks: 2, thighs: 2, breasts: 1, wings: 1 });
-                    if (opt.size === 10) setPieces({ drumsticks: 4, thighs: 3, breasts: 2, wings: 1 });
-                    if (opt.size === 14) setPieces({ drumsticks: 5, thighs: 4, breasts: 3, wings: 2 });
+                    setBucketSize(opt.size as 5 | 8 | 12);
+                    if (opt.size === 5) setPieces({ drumsticks: 2, thighs: 2, breasts: 1, wings: 0 });
+                    if (opt.size === 8) setPieces({ drumsticks: 3, thighs: 3, breasts: 1, wings: 1 });
+                    if (opt.size === 12) setPieces({ drumsticks: 4, thighs: 4, breasts: 2, wings: 2 });
                   }}
                   className={`p-3.5 rounded-2xl text-left border transition-all ${
                     bucketSize === opt.size
@@ -194,31 +200,31 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
           <div className="space-y-3">
             <label className="text-sm font-extrabold uppercase tracking-wider text-zinc-800 flex items-center gap-2">
               <span className="w-6 h-6 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">2</span>
-              Choose Breading & Recipe
+              Chọn Vị Gà Rán
             </label>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 {
+                  id: 'crispy_spicy',
+                  name: 'Gà Giòn Cay',
+                  tag: 'Cay Nồng Giòn Rụm',
+                  desc: 'Vỏ da giòn tan cay xé lưỡi, vị bán chạy nhất KFC',
+                  icon: '🔥',
+                },
+                {
                   id: 'original',
-                  name: 'Original Recipe',
-                  tag: '11 Herbs & Spices',
-                  desc: 'Hand-breaded classic, juicy & pressure-cooked',
+                  name: 'Gà Truyền Thống',
+                  tag: '11 Thảo Mộc',
+                  desc: 'Công thức nguyên bản 1939, thịt mềm mọng nước',
                   icon: '🍗',
                 },
                 {
-                  id: 'crispy',
-                  name: 'Extra Crispy',
-                  tag: 'Maximum Crunch',
-                  desc: 'Double-breaded with signature crispy flakes',
-                  icon: '⚡',
-                },
-                {
-                  id: 'spicy_nashville',
-                  name: 'Nashville Hot Fire',
-                  tag: 'Fiery & Glazed',
-                  desc: 'Cayenne pepper glaze with pickles',
-                  icon: '🔥',
+                  id: 'cheese',
+                  name: 'Gà Lắc Phô Mai',
+                  tag: 'Béo Ngậy Hấp Dẫn',
+                  desc: 'Lắc đẫm bột phô mai bơ sữa thơm nức mũi',
+                  icon: '🧀',
                 },
               ].map((rec) => (
                 <button
@@ -253,23 +259,23 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-sm font-extrabold uppercase tracking-wider text-zinc-800 flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">3</span>
-                Customize Chicken Pieces
+                Tùy Chọn Từng Miếng Gà
               </label>
               <div className={`text-xs font-mono font-bold px-2.5 py-1 rounded-full ${
                 remainingPieces === 0
                   ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                   : 'bg-amber-100 text-amber-800 border border-amber-300'
               }`}>
-                {remainingPieces === 0 ? '✓ Complete' : `${remainingPieces} pieces left to pick`}
+                {remainingPieces === 0 ? '✓ Đã đủ miếng' : `Còn thiếu ${remainingPieces} miếng`}
               </div>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { key: 'drumsticks', name: 'Drumsticks', vi: 'Đùi Gà', icon: '🍗' },
-                { key: 'thighs', name: 'Thighs', vi: 'Má Đùi', icon: '🥩' },
-                { key: 'breasts', name: 'Breasts', vi: 'Ức Gà', icon: '🍖' },
-                { key: 'wings', name: 'Wings', vi: 'Cánh Gà', icon: '🪶' },
+                { key: 'drumsticks', name: 'Đùi Gà', icon: '🍗' },
+                { key: 'thighs', name: 'Má Đùi Gà', icon: '🥩' },
+                { key: 'breasts', name: 'Ức Gà Phi-lê', icon: '🍖' },
+                { key: 'wings', name: 'Cánh Gà', icon: '🪶' },
               ].map((p) => {
                 const count = pieces[p.key as keyof typeof pieces];
                 return (
@@ -279,7 +285,6 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
                   >
                     <div className="text-2xl mb-1">{p.icon}</div>
                     <div className="font-extrabold text-xs text-zinc-900">{p.name}</div>
-                    <div className="text-[10px] text-zinc-500">{p.vi}</div>
 
                     <div className="flex items-center gap-2 mt-3 bg-zinc-50 px-2 py-1 rounded-lg border border-zinc-200">
                       <button
@@ -311,14 +316,14 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-sm font-extrabold uppercase tracking-wider text-zinc-800 flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">4</span>
-                Pick 2 Large Sides (Included Free)
+                Chọn 2 Món Ăn Phụ (Tặng Kèm Miễn Phí)
               </label>
               <span className="text-xs text-zinc-500 font-semibold">
-                {selectedSides.length} / 2 selected
+                {selectedSides.length} / 2 món đã chọn
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
               {availableSides.map((s) => {
                 const isSelected = selectedSides.includes(s.name);
                 return (
@@ -344,10 +349,10 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-sm font-extrabold uppercase tracking-wider text-zinc-800 flex items-center gap-2">
                 <span className="w-6 h-6 rounded-full bg-red-600 text-white text-xs flex items-center justify-center">5</span>
-                Select Dipping Sauces (Up to 3)
+                Chọn Sốt Chấm Đặc Biệt (Tối đa 3 loại)
               </label>
               <span className="text-xs text-zinc-500 font-semibold">
-                {selectedSauces.length} / 3 chosen
+                {selectedSauces.length} / 3 sốt đã chọn
               </span>
             </div>
 
@@ -377,9 +382,9 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
         {/* Modal Footer */}
         <div className="p-6 bg-stone-50 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div>
-            <div className="text-xs text-zinc-500 font-bold">Total Price for Custom Bucket:</div>
+            <div className="text-xs text-zinc-500 font-bold">Tổng tiền Xô Gà Tự Chọn:</div>
             <div className="text-2xl font-display font-mono text-zinc-950 tracking-wide">
-              ${getPrice().toFixed(2)}
+              {getPrice().toLocaleString('vi-VN')} ₫
             </div>
           </div>
 
@@ -388,14 +393,14 @@ export const BucketBuilderModal: React.FC<BucketBuilderModalProps> = ({
               onClick={onClose}
               className="px-5 py-3 rounded-2xl bg-zinc-200 hover:bg-zinc-300 text-zinc-800 font-bold text-sm transition-colors"
             >
-              Cancel
+              Hủy
             </button>
             <button
               onClick={handleSaveAndAdd}
               disabled={remainingPieces !== 0}
               className="flex-1 sm:flex-none px-8 py-3.5 rounded-2xl bg-red-600 hover:bg-red-700 disabled:bg-zinc-200 disabled:text-zinc-400 font-extrabold text-sm text-white shadow-xl shadow-red-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 border border-red-700"
             >
-              <span>Add Custom Bucket to Bag</span>
+              <span>Thêm Xô Gà Vào Giỏ Hàng</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>

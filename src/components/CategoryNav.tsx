@@ -22,13 +22,14 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
   totalCount,
 }) => {
   const categories: { id: MenuCategory; label: string; icon: string }[] = [
-    { id: 'all', label: 'All Menu', icon: '🍽️' },
-    { id: 'buckets', label: 'Buckets & Feasts', icon: '🪣' },
-    { id: 'chicken', label: 'Fried Chicken', icon: '🍗' },
-    { id: 'burgers', label: 'Burgers & Wraps', icon: '🍔' },
-    { id: 'combos', label: 'Box Meals', icon: '🍱' },
-    { id: 'sides', label: 'Sides & Gravy', icon: '🍟' },
-    { id: 'drinks', label: 'Drinks & Desserts', icon: '🥤' },
+    { id: 'all', label: 'Tất Cả Món', icon: '🍽️' },
+    { id: 'combos', label: 'Combo Tiết Kiệm', icon: '🍱' },
+    { id: 'buckets', label: 'Xô Gà Tiệc Tùng', icon: '🪣' },
+    { id: 'chicken', label: 'Gà Rán & Cánh Cay', icon: '🍗' },
+    { id: 'burgers', label: 'Burger & Wrap', icon: '🍔' },
+    { id: 'rice', label: 'Cơm Gà KFC', icon: '🍚' },
+    { id: 'sides', label: 'Thức Ăn Phụ & Bánh', icon: '🍟' },
+    { id: 'drinks', label: 'Thức Uống', icon: '🥤' },
   ];
 
   return (
@@ -60,7 +61,7 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
           {/* Quick Filter Badges */}
           <div className="flex items-center gap-2 self-start md:self-auto shrink-0 text-xs">
             <span className="text-zinc-500 font-mono text-[11px] font-bold hidden lg:inline mr-1">
-              ({totalCount} items)
+              ({totalCount} món)
             </span>
 
             {/* Spicy Filter */}
@@ -73,7 +74,7 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
               }`}
             >
               <Flame className={`w-3.5 h-3.5 ${onlySpicy ? 'text-amber-300' : 'text-red-600'}`} />
-              <span>Spicy 🔥</span>
+              <span>Cay Nồng 🔥</span>
             </button>
 
             {/* Best Sellers Filter */}
@@ -86,7 +87,7 @@ export const CategoryNav: React.FC<CategoryNavProps> = ({
               }`}
             >
               <Star className={`w-3.5 h-3.5 ${onlyBestSellers ? 'text-zinc-950 fill-zinc-950' : 'text-amber-500'}`} />
-              <span>Best Sellers</span>
+              <span>Bán Chạy Nhất</span>
             </button>
           </div>
 

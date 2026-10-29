@@ -14,16 +14,73 @@ import { ItemCustomizeModal } from './components/ItemCustomizeModal';
 import { CartDrawer } from './components/CartDrawer';
 import { CheckoutModal } from './components/CheckoutModal';
 import { OrderTrackerModal } from './components/OrderTrackerModal';
+import { WalletModal } from './components/WalletModal';
+import { AddressManagerModal } from './components/AddressManagerModal';
+import { OrderHistoryModal } from './components/OrderHistoryModal';
+import { VoucherModal } from './components/VoucherModal';
 import { HeritageSection } from './components/HeritageSection';
 import { Footer } from './components/Footer';
-import { KFC_MENU_ITEMS, FEATURED_DEALS } from './data/kfcMenu';
-import { MenuItem, CartItem, MenuCategory, OrderType, DealPromo, OrderDetails } from './types/kfc';
+import { KFC_MENU_ITEMS, FEATURED_DEALS, INITIAL_SAVED_ADDRESSES } from './data/kfcMenu';
+import { MenuItem, CartItem, MenuCategory, OrderType, DealPromo, OrderDetails, DeliveryAddress, WalletTransaction } from './types/kfc';
 import { CheckCircle2, ShoppingBag } from 'lucide-react';
 
 export default function App() {
-  // Fulfillment & Address
+  // Fulfillment & Address State
   const [orderType, setOrderType] = useState<OrderType>('delivery');
-  const [deliveryAddress, setDeliveryAddress] = useState('452 Lexington Ave, Manhattan, NY');
+  const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>(INITIAL_SAVED_ADDRESSES);
+  const [activeAddressId, setActiveAddressId] = useState<string>(INITIAL_SAVED_ADDRESSES[0].id);
+
+  const activeAddress = useMemo(() => {
+    return savedAddresses.find((a) => a.id === activeAddressId) || savedAddresses[0];
+  }, [savedAddresses, activeAddressId]);
+
+  // Wallet State (Khởi tạo sẵn 250.000 ₫ để khách hàng dùng thử nạp/trừ tiền ngay)
+  const [walletBalance, setWalletBalance] = useState<number>(250000);
+  const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>([
+    {
+      id: 'tx-init-1',
+      amount: 250000,
+      type: 'topup',
+      description: 'Nạp tiền vào Ví KFC Pay thành công',
+      createdAt: '28/10/2026 20:30',
+      method: 'VIETQR',
+    },
+  ]);
+
+  // Order History State (Khởi tạo sẵn 1 đơn hàng đang giao để khách kiểm tra ngay)
+  const [orderHistory, setOrderHistory] = useState<OrderDetails[]>([
+    {
+      orderId: 'KFC-839210',
+      customerName: 'Nguyễn Văn Minh',
+      phone: '0988 123 456',
+      address: 'Số 128 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+      orderType: 'delivery',
+      items: [
+        {
+          cartId: 'item-demo-1',
+          item: KFC_MENU_ITEMS[0], // Combo Gà Giòn 1 Người
+          quantity: 2,
+          recipe: 'crispy_spicy',
+          selectedSauces: ['Sốt Bí Truyền Colonel'],
+          totalPrice: 178000,
+        },
+      ],
+      subtotal: 178000,
+      discount: 25000,
+      deliveryFee: 0,
+      total: 153000,
+      paymentMethod: 'wallet',
+      status: 'delivering',
+      placedAt: '20:45',
+      estimatedDeliveryMins: 20,
+      estimatedDeliveryTime: '21:15',
+      courier: {
+        name: 'Nguyễn Văn Cường',
+        phone: '0912 888 999',
+        vehicle: 'Honda Wave • Thùng đỏ KFC',
+      },
+    },
+  ]);
 
   // Menu filtering
   const [selectedCategory, setSelectedCategory] = useState<MenuCategory>('all');
@@ -31,25 +88,29 @@ export default function App() {
   const [onlySpicy, setOnlySpicy] = useState(false);
   const [onlyBestSellers, setOnlyBestSellers] = useState(false);
 
-  // Cart State (Initialized with 1 starter item so the cart isn't empty)
+  // Cart State (Initialized with 1 starter item: Combo Gà Giòn)
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
       cartId: 'init-1',
-      item: KFC_MENU_ITEMS[0], // 8-Piece Original Recipe Bucket
+      item: KFC_MENU_ITEMS[0], // Combo Gà Giòn 1 Người
       quantity: 1,
-      recipe: 'original',
-      selectedSauces: ["Colonel's Secret Sauce", 'Smoky Kentucky BBQ'],
+      recipe: 'crispy_spicy',
+      selectedSauces: ['Sốt Bí Truyền Colonel', 'Tương Ớt Cay KFC'],
       totalPrice: KFC_MENU_ITEMS[0].price,
     },
   ]);
   const [appliedPromo, setAppliedPromo] = useState<DealPromo | null>(null);
 
   // Modals state
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [isOrderHistoryModalOpen, setIsOrderHistoryModalOpen] = useState(false);
+  const [isVoucherModalOpen, setIsVoucherModalOpen] = useState(false);
   const [isBucketBuilderOpen, setIsBucketBuilderOpen] = useState(false);
   const [customizingItem, setCustomizingItem] = useState<MenuItem | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [currentOrder, setCurrentOrder] = useState<OrderDetails | null>(null);
+  const [activeTrackingOrder, setActiveTrackingOrder] = useState<OrderDetails | null>(orderHistory[0]);
   const [isOrderTrackerOpen, setIsOrderTrackerOpen] = useState(false);
 
   // Toast feedback
@@ -65,22 +126,18 @@ export default function App() {
   // Filtered Menu Items
   const filteredItems = useMemo(() => {
     return KFC_MENU_ITEMS.filter((item) => {
-      // Category filter
       if (selectedCategory !== 'all' && item.category !== selectedCategory) {
         return false;
       }
-      // Search query
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const matchesName = item.name.toLowerCase().includes(q);
         const matchesDesc = item.description.toLowerCase().includes(q);
         if (!matchesName && !matchesDesc) return false;
       }
-      // Spicy filter
       if (onlySpicy && !item.isSpicy) {
         return false;
       }
-      // Best sellers
       if (onlyBestSellers && !item.isBestSeller) {
         return false;
       }
@@ -92,10 +149,45 @@ export default function App() {
   const cartCount = cartItems.reduce((acc, curr) => acc + curr.quantity, 0);
   const cartSubtotal = cartItems.reduce((acc, curr) => acc + curr.totalPrice, 0);
 
+  // Wallet Top-up Handler
+  const handleTopUp = (amount: number, method: string) => {
+    setWalletBalance((prev) => prev + amount);
+    const newTx: WalletTransaction = {
+      id: `tx-${Date.now()}`,
+      amount,
+      type: 'topup',
+      description: `Nạp tiền vào Ví KFC Pay (${method})`,
+      createdAt: new Date().toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }),
+      method,
+    };
+    setWalletTransactions((prev) => [newTx, ...prev]);
+    showToast(`Nạp thành công +${amount.toLocaleString('vi-VN')} ₫ vào Ví KFC Pay! 💳`);
+  };
+
+  // Address Handlers
+  const handleAddAddress = (newAddr: DeliveryAddress) => {
+    setSavedAddresses((prev) => [newAddr, ...prev]);
+    setActiveAddressId(newAddr.id);
+    showToast(`Đã thêm địa chỉ giao hàng: ${newAddr.title}! 📍`);
+  };
+
+  const handleDeleteAddress = (id: string) => {
+    setSavedAddresses((prev) => prev.filter((a) => a.id !== id));
+    if (activeAddressId === id && savedAddresses.length > 1) {
+      const remaining = savedAddresses.filter((a) => a.id !== id);
+      setActiveAddressId(remaining[0].id);
+    }
+    showToast('Đã xóa địa chỉ thành công.');
+  };
+
+  const handleSelectAddress = (addr: DeliveryAddress) => {
+    setActiveAddressId(addr.id);
+    showToast(`Đã chọn nơi giao hàng: ${addr.title} (${addr.street})`);
+  };
+
   // Cart Handlers
   const handleAddToCart = (newItem: CartItem) => {
     setCartItems((prev) => {
-      // check if identical item already exists
       const existingIdx = prev.findIndex(
         (i) =>
           i.item.id === newItem.item.id &&
@@ -120,7 +212,7 @@ export default function App() {
       return [...prev, newItem];
     });
 
-    showToast(`Added "${newItem.item.name}" to your bucket bag! 🍗`);
+    showToast(`Đã thêm "${newItem.item.name}" vào giỏ hàng! 🍗`);
   };
 
   const handleQuickAdd = (item: MenuItem) => {
@@ -128,8 +220,8 @@ export default function App() {
       cartId: `${item.id}-${Date.now()}`,
       item,
       quantity: 1,
-      recipe: item.allowedRecipes?.[0] || 'original',
-      selectedSauces: ["Colonel's Secret Sauce"],
+      recipe: item.allowedRecipes?.[0] || 'crispy_spicy',
+      selectedSauces: ['Sốt Bí Truyền Colonel'],
       totalPrice: item.price,
     };
     handleAddToCart(quickCartItem);
@@ -166,7 +258,7 @@ export default function App() {
   // Promo Handlers
   const handleApplyDeal = (deal: DealPromo) => {
     setAppliedPromo(deal);
-    showToast(`Coupon "${deal.code}" applied! Save on your feast.`);
+    showToast(`Đã áp dụng mã "${deal.code}"! Tiết kiệm cho đơn hàng.`);
   };
 
   const handleApplyCouponCode = (code: string): boolean => {
@@ -175,7 +267,7 @@ export default function App() {
     );
     if (found) {
       setAppliedPromo(found);
-      showToast(`Coupon "${found.code}" applied successfully!`);
+      showToast(`Áp dụng mã giảm giá "${found.code}" thành công!`);
       return true;
     }
     return false;
@@ -185,12 +277,53 @@ export default function App() {
     setAppliedPromo(null);
   };
 
-  const handleOrderSuccess = (order: OrderDetails) => {
-    setCurrentOrder(order);
-    setCartItems([]); // clear cart
+  // Order Handlers
+  const handleOrderSuccess = (order: OrderDetails, usedWallet: boolean) => {
+    if (usedWallet) {
+      setWalletBalance((prev) => Math.max(0, prev - order.total));
+      const payTx: WalletTransaction = {
+        id: `tx-pay-${Date.now()}`,
+        amount: order.total,
+        type: 'payment',
+        description: `Thanh toán đơn hàng KFC #${order.orderId}`,
+        createdAt: new Date().toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }),
+        method: 'VÍ KFC PAY',
+      };
+      setWalletTransactions((prev) => [payTx, ...prev]);
+    }
+
+    setOrderHistory((prev) => [order, ...prev]);
+    setCartItems([]);
     setAppliedPromo(null);
+    setActiveTrackingOrder(order);
     setIsOrderTrackerOpen(true);
   };
+
+  const handleConfirmPayment = (orderId: string) => {
+    setOrderHistory((prev) =>
+      prev.map((ord) => {
+        if (ord.orderId === orderId) {
+          return { ...ord, isPaid: true };
+        }
+        return ord;
+      })
+    );
+    showToast(`Đã ghi nhận chuyển khoản cho đơn #${orderId}! Nhà bếp đang chuẩn bị gà. 🍗`);
+  };
+
+  const handleTrackSpecificOrder = (order: OrderDetails) => {
+    setActiveTrackingOrder(order);
+    setIsOrderTrackerOpen(true);
+  };
+
+  const handleReorder = (items: CartItem[]) => {
+    setCartItems(items);
+    setIsOrderHistoryModalOpen(false);
+    setIsCartOpen(true);
+    showToast('Đã thêm các món vào giỏ hàng!');
+  };
+
+  const activeOrdersCount = orderHistory.filter((o) => o.status !== 'delivered').length;
 
   return (
     <div className="min-h-screen bg-stone-50 text-zinc-900 flex flex-col selection:bg-red-600 selection:text-white">
@@ -204,7 +337,7 @@ export default function App() {
             onClick={() => setIsCartOpen(true)}
             className="text-xs bg-red-600 hover:bg-red-700 text-white font-extrabold px-3 py-1.5 rounded-xl ml-2 shrink-0 transition-colors shadow-sm"
           >
-            View Bag
+            Xem Giỏ Hàng
           </button>
         </div>
       )}
@@ -216,14 +349,15 @@ export default function App() {
         cartCount={cartCount}
         cartTotal={cartSubtotal}
         onOpenCart={() => setIsCartOpen(true)}
-        onOpenDeals={() => {
-          const dealsElem = document.getElementById('deals-section');
-          dealsElem?.scrollIntoView({ behavior: 'smooth' });
-        }}
+        onOpenDeals={() => setIsVoucherModalOpen(true)}
+        onOpenWallet={() => setIsWalletModalOpen(true)}
+        onOpenOrders={() => setIsOrderHistoryModalOpen(true)}
+        onOpenAddressManager={() => setIsAddressModalOpen(true)}
+        activeOrdersCount={activeOrdersCount}
+        walletBalance={walletBalance}
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        deliveryAddress={deliveryAddress}
-        setDeliveryAddress={setDeliveryAddress}
+        activeAddress={activeAddress}
       />
 
       {/* Hero Banner */}
@@ -233,6 +367,7 @@ export default function App() {
           const menuElem = document.getElementById('menu-section');
           menuElem?.scrollIntoView({ behavior: 'smooth' });
         }}
+        onOpenVouchers={() => setIsVoucherModalOpen(true)}
       />
 
       {/* Deals & Coupons Bar */}
@@ -263,35 +398,46 @@ export default function App() {
             <h2 className="text-2xl sm:text-3xl font-display uppercase tracking-wide text-zinc-950 flex items-center gap-2">
               <span>
                 {selectedCategory === 'all'
-                  ? 'FULL KFC MENU'
-                  : selectedCategory === 'buckets'
-                  ? 'CRISPY BUCKETS & FEASTS'
-                  : selectedCategory === 'chicken'
-                  ? 'FRIED CHICKEN & TENDERS'
-                  : selectedCategory === 'burgers'
-                  ? 'ZINGER BURGERS & WRAPS'
+                  ? 'THỰC ĐƠN GÀ RÁN KFC VIỆT NAM'
                   : selectedCategory === 'combos'
-                  ? 'BOX COMBOS & MEALS'
+                  ? 'COMBO GÀ RÁN TIẾT KIỆM'
+                  : selectedCategory === 'buckets'
+                  ? 'XÔ GÀ TIỆC TÙNG HOÀNH TRÁNG'
+                  : selectedCategory === 'chicken'
+                  ? 'GÀ RÁN GIÒN CAY & CÁNH GÀ'
+                  : selectedCategory === 'burgers'
+                  ? 'BURGER ZINGER & BURGER TÔM'
+                  : selectedCategory === 'rice'
+                  ? 'CƠM GÀ KFC CHUẨN VỊ VIỆT'
                   : selectedCategory === 'sides'
-                  ? 'GRAVY, SIDES & BISCUITS'
-                  : 'DRINKS & SWEET DESSERTS'}
+                  ? 'KHOAI TÂY & BÁNH TRỨNG NƯỚNG'
+                  : 'THỨC UỐNG & KEM MÁT LẠNH'}
               </span>
               <span className="text-red-600 font-sans font-extrabold text-sm">
-                ({filteredItems.length})
+                ({filteredItems.length} món)
               </span>
             </h2>
             <p className="text-xs text-zinc-600 mt-1 font-medium">
-              Cooked fresh to order. Hand-breaded and served piping hot.
+              Chế biến tươi nóng mỗi ngày. Giao hàng nóng giòn trong 30 phút.
             </p>
           </div>
 
-          {/* Quick custom bucket CTA button */}
-          <button
-            onClick={() => setIsBucketBuilderOpen(true)}
-            className="px-4 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 border border-red-300 text-xs font-extrabold text-red-700 hover:text-red-800 transition-all flex items-center gap-2 shadow-2xs"
-          >
-            <span>🪣 Customize 6, 10 or 14-Pc Bucket</span>
-          </button>
+          {/* Quick action buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsVoucherModalOpen(true)}
+              className="px-3.5 py-2.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-300 text-xs font-extrabold text-amber-900 transition-all flex items-center gap-1.5 shadow-2xs"
+            >
+              <span>🎟️ Kho Voucher KFC</span>
+            </button>
+
+            <button
+              onClick={() => setIsBucketBuilderOpen(true)}
+              className="px-4 py-2.5 rounded-xl bg-red-50 hover:bg-red-100 border border-red-300 text-xs font-extrabold text-red-700 hover:text-red-800 transition-all flex items-center gap-2 shadow-2xs"
+            >
+              <span>🪣 Tự Phối Xô Gà 5, 8 hoặc 12 Miếng</span>
+            </button>
+          </div>
         </div>
 
         {/* Product Cards Grid */}
@@ -348,6 +494,7 @@ export default function App() {
         appliedPromo={appliedPromo}
         onApplyCouponCode={handleApplyCouponCode}
         onRemoveCoupon={handleRemoveCoupon}
+        onOpenVouchers={() => setIsVoucherModalOpen(true)}
         onCheckout={() => {
           setIsCartOpen(false);
           setIsCheckoutOpen(true);
@@ -360,20 +507,63 @@ export default function App() {
         onClose={() => setIsCheckoutOpen(false)}
         items={cartItems}
         orderType={orderType}
-        deliveryAddress={deliveryAddress}
+        activeAddress={activeAddress}
+        onOpenAddressManager={() => {
+          setIsAddressModalOpen(true);
+        }}
+        walletBalance={walletBalance}
+        onOpenWallet={() => setIsWalletModalOpen(true)}
         appliedPromo={appliedPromo}
         onOrderSuccess={handleOrderSuccess}
       />
 
       {/* 5. Live Order Tracker Modal */}
       <OrderTrackerModal
-        order={currentOrder}
+        order={activeTrackingOrder}
         isOpen={isOrderTrackerOpen}
         onClose={() => setIsOrderTrackerOpen(false)}
         onNewOrder={() => {
           setIsOrderTrackerOpen(false);
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
+      />
+
+      {/* 6. Wallet Modal (Nạp tiền & Ví KFC Pay) */}
+      <WalletModal
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+        balance={walletBalance}
+        onTopUp={handleTopUp}
+        transactions={walletTransactions}
+      />
+
+      {/* 7. Address Manager Modal (Sổ địa chỉ & Chỉnh nơi giao hàng) */}
+      <AddressManagerModal
+        isOpen={isAddressModalOpen}
+        onClose={() => setIsAddressModalOpen(false)}
+        addresses={savedAddresses}
+        activeAddressId={activeAddressId}
+        onSelectAddress={handleSelectAddress}
+        onAddAddress={handleAddAddress}
+        onDeleteAddress={handleDeleteAddress}
+      />
+
+      {/* 8. Order History Modal (Xem đơn hàng & Lịch sử) */}
+      <OrderHistoryModal
+        isOpen={isOrderHistoryModalOpen}
+        onClose={() => setIsOrderHistoryModalOpen(false)}
+        orders={orderHistory}
+        onTrackOrder={handleTrackSpecificOrder}
+        onReorder={handleReorder}
+        onConfirmPayment={handleConfirmPayment}
+      />
+
+      {/* 9. Voucher & Mã giảm giá Modal */}
+      <VoucherModal
+        isOpen={isVoucherModalOpen}
+        onClose={() => setIsVoucherModalOpen(false)}
+        onApplyVoucher={handleApplyDeal}
+        activePromoCode={appliedPromo?.code || null}
       />
 
       {/* Floating Quick Bag Trigger on Mobile */}
@@ -385,9 +575,9 @@ export default function App() {
           >
             <div className="flex items-center gap-2">
               <ShoppingBag className="w-5 h-5" />
-              <span>View Bucket Bag ({cartCount})</span>
+              <span>Xem Giỏ Hàng ({cartCount})</span>
             </div>
-            <span className="font-mono text-base font-extrabold">${cartSubtotal.toFixed(2)}</span>
+            <span className="font-mono text-base font-extrabold">{cartSubtotal.toLocaleString('vi-VN')} ₫</span>
           </button>
         </div>
       )}

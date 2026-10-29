@@ -1,6 +1,6 @@
 {
-  "name": "KFC Fried Chicken - Finger Lickin' Good Online Ordering",
-  "description": "Crispy, juicy fried chicken, family buckets, spicy zinger burgers, combos, and finger lickin' good deals delivered hot and fresh to your door.",
+  "name": "KFC Việt Nam - Đặt Gà Rán Giao Tận Nơi | Vị Ngon Trên Từng Ngón Tay",
+  "description": "Đặt gà rán KFC giòn cay, xô gà gia đình, burger zinger, combo tiết kiệm. Giao hàng nóng hổi 30 phút, tích hợp ví KFC, voucher giảm giá và kiểm tra đơn hàng trực tiếp.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

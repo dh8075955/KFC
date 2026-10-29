@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { X, MapPin, Phone, User, CreditCard, ShieldCheck, ArrowRight, DollarSign } from 'lucide-react';
+import { X, MapPin, Phone, User, CreditCard, ShieldCheck, ArrowRight, DollarSign, Wallet, QrCode } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { CartItem, OrderType, DealPromo, OrderDetails } from '../types/kfc';
+import { CartItem, OrderType, DealPromo, OrderDetails, DeliveryAddress } from '../types/kfc';
 
 interface CheckoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   items: CartItem[];
   orderType: OrderType;
-  deliveryAddress: string;
+  activeAddress: DeliveryAddress;
+  onOpenAddressManager: () => void;
+  walletBalance: number;
+  onOpenWallet: () => void;
   appliedPromo: DealPromo | null;
-  onOrderSuccess: (order: OrderDetails) => void;
+  onOrderSuccess: (order: OrderDetails, usedWallet: boolean) => void;
 }
 
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
@@ -18,15 +21,17 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onClose,
   items,
   orderType,
-  deliveryAddress,
+  activeAddress,
+  onOpenAddressManager,
+  walletBalance,
+  onOpenWallet,
   appliedPromo,
   onOrderSuccess,
 }) => {
-  const [customerName, setCustomerName] = useState('Alex Morgan');
-  const [phone, setPhone] = useState('0988 123 456');
-  const [address, setAddress] = useState(deliveryAddress);
-  const [instructions, setInstructions] = useState('Leave on the front porch table, ring doorbell.');
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'card' | 'momo' | 'vietqr'>('cod');
+  const [customerName, setCustomerName] = useState(activeAddress.recipientName);
+  const [phone, setPhone] = useState(activeAddress.phone);
+  const [instructions, setInstructions] = useState(activeAddress.notes || 'Bấm chuông, giao tận cửa nhà.');
+  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'cod' | 'vietqr' | 'momo'>('wallet');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -42,28 +47,40 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     }
   }
 
-  const deliveryFee = orderType === 'delivery' ? (subtotal >= 35 ? 0 : 2.99) : 0;
-  const estimatedTax = (subtotal - discount) * 0.08;
-  const total = Math.max(0, subtotal - discount + deliveryFee + estimatedTax);
+  const freeThreshold = 160000;
+  const deliveryFee = orderType === 'delivery' ? (subtotal >= freeThreshold ? 0 : 25000) : 0;
+  const total = Math.max(0, subtotal - discount + deliveryFee);
+
+  const isWalletInsufficient = paymentMethod === 'wallet' && walletBalance < total;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (isWalletInsufficient) {
+      onOpenWallet();
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Trigger confetti celebration!
     confetti({
-      particleCount: 130,
+      particleCount: 140,
       spread: 75,
       origin: { y: 0.6 },
       colors: ['#e4002b', '#ffffff', '#f59e0b', '#000000'],
     });
 
+    const now = new Date();
+    const placedTimeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+    const etaDate = new Date(now.getTime() + 30 * 60000);
+    const etaTimeStr = etaDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
     setTimeout(() => {
+      const fullAddressString = `${activeAddress.street}, ${activeAddress.ward}, ${activeAddress.district}, ${activeAddress.city}`;
       const newOrder: OrderDetails = {
         orderId: `KFC-${Math.floor(100000 + Math.random() * 900000)}`,
-        customerName,
-        phone,
-        address,
+        customerName: customerName.trim(),
+        phone: phone.trim(),
+        address: fullAddressString,
         orderType,
         items,
         subtotal,
@@ -72,12 +89,18 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         total,
         paymentMethod,
         status: 'received',
-        placedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        placedAt: placedTimeStr,
         estimatedDeliveryMins: 30,
+        estimatedDeliveryTime: etaTimeStr,
+        courier: {
+          name: 'Nguyễn Văn Cường',
+          phone: '0912 888 999',
+          vehicle: 'Honda Wave • Thùng giữ nhiệt đỏ KFC',
+        },
       };
 
       setIsSubmitting(false);
-      onOrderSuccess(newOrder);
+      onOrderSuccess(newOrder, paymentMethod === 'wallet');
       onClose();
     }, 600);
   };
@@ -90,10 +113,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         <div className="p-6 bg-gradient-to-r from-red-700 via-red-600 to-red-700 text-white flex items-center justify-between">
           <div>
             <h3 className="font-display uppercase tracking-wide text-2xl">
-              HOT FRIED CHICKEN CHECKOUT
+              THANH TOÁN ĐƠN GÀ RÁN
             </h3>
             <p className="text-xs text-red-100 font-medium">
-              We&apos;re preparing the fryer. Review your delivery info below.
+              Kiểm tra thông tin giao hàng & chọn phương thức thanh toán
             </p>
           </div>
           <button
@@ -107,84 +130,97 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
           
-          {/* Customer Info */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-800">
-              Customer Contact Details
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-semibold text-zinc-600 mb-1">Full Name</label>
-                <div className="flex items-center bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2.5 focus-within:border-red-600 focus-within:bg-white shadow-2xs">
-                  <User className="w-4 h-4 text-zinc-400 mr-2 shrink-0" />
-                  <input
-                    type="text"
-                    required
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="bg-transparent border-none text-xs text-zinc-900 focus:outline-none w-full"
-                  />
-                </div>
-              </div>
+          {/* Nơi giao hàng & nút chỉnh */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-800">
+                Nơi Giao Hàng ({activeAddress.title})
+              </h4>
+              <button
+                type="button"
+                onClick={onOpenAddressManager}
+                className="text-xs text-red-600 font-extrabold hover:underline"
+              >
+                Chỉnh nơi giao hàng →
+              </button>
+            </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-zinc-600 mb-1">Phone Number (For Courier)</label>
-                <div className="flex items-center bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2.5 focus-within:border-red-600 focus-within:bg-white shadow-2xs">
-                  <Phone className="w-4 h-4 text-zinc-400 mr-2 shrink-0" />
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="bg-transparent border-none text-xs text-zinc-900 focus:outline-none w-full"
-                  />
+            <div className="p-3.5 rounded-2xl bg-stone-50 border border-zinc-200 flex items-start gap-3">
+              <div className="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0 border border-red-200 mt-0.5">
+                <MapPin className="w-4 h-4" />
+              </div>
+              <div className="text-xs space-y-0.5">
+                <div className="font-extrabold text-zinc-900">
+                  {activeAddress.street}, {activeAddress.ward}, {activeAddress.district}, {activeAddress.city}
+                </div>
+                <div className="text-zinc-500 font-medium">
+                  Người nhận: {customerName} • SĐT: {phone}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Delivery Address */}
-          {orderType === 'delivery' && (
-            <div className="space-y-3">
-              <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-800">
-                Delivery Location
-              </h4>
+          {/* Contact Details */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-zinc-600 mb-1">Tên người nhận</label>
               <div className="flex items-center bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2.5 focus-within:border-red-600 focus-within:bg-white shadow-2xs">
-                <MapPin className="w-4 h-4 text-red-600 mr-2 shrink-0" />
+                <User className="w-4 h-4 text-zinc-400 mr-2 shrink-0" />
                 <input
                   type="text"
                   required
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
                   className="bg-transparent border-none text-xs text-zinc-900 focus:outline-none w-full"
                 />
               </div>
+            </div>
 
-              <div>
-                <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
-                  Delivery instructions (Gate code, apartment #, landmark)
-                </label>
+            <div>
+              <label className="block text-xs font-semibold text-zinc-600 mb-1">Số điện thoại tài xế gọi</label>
+              <div className="flex items-center bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2.5 focus-within:border-red-600 focus-within:bg-white shadow-2xs">
+                <Phone className="w-4 h-4 text-zinc-400 mr-2 shrink-0" />
                 <input
-                  type="text"
-                  value={instructions}
-                  onChange={(e) => setInstructions(e.target.value)}
-                  className="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:border-red-600 focus:bg-white shadow-2xs"
+                  type="tel"
+                  required
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="bg-transparent border-none text-xs text-zinc-900 focus:outline-none w-full font-mono"
                 />
               </div>
             </div>
-          )}
+          </div>
 
-          {/* Payment Method */}
+          {/* Ghi chú giao hàng */}
+          <div>
+            <label className="block text-[11px] font-semibold text-zinc-500 mb-1">
+              Ghi chú cho tài xế (Số phòng, số tầng, chỉ dẫn đường đi...)
+            </label>
+            <input
+              type="text"
+              value={instructions}
+              onChange={(e) => setInstructions(e.target.value)}
+              className="w-full bg-zinc-50 border border-zinc-300 rounded-xl px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:border-red-600 focus:bg-white shadow-2xs"
+            />
+          </div>
+
+          {/* Phương thức thanh toán */}
           <div className="space-y-3">
             <h4 className="text-xs font-extrabold uppercase tracking-wider text-zinc-800">
-              Payment Method
+              Phương Thức Thanh Toán
             </h4>
             <div className="grid grid-cols-2 gap-2.5">
               {[
-                { id: 'cod', label: 'Cash on Delivery', sub: 'Pay when hot food arrives', icon: DollarSign },
-                { id: 'card', label: 'Credit / Debit Card', sub: 'Visa, Mastercard, Amex', icon: CreditCard },
-                { id: 'vietqr', label: 'Instant VietQR', sub: 'Scan bank QR 24/7', icon: ShieldCheck },
-                { id: 'momo', label: 'E-Wallet / Apple Pay', sub: 'Fast 1-touch checkout', icon: ShieldCheck },
+                { 
+                  id: 'wallet', 
+                  label: 'Ví KFC Pay', 
+                  sub: `Số dư: ${walletBalance.toLocaleString('vi-VN')} ₫`, 
+                  icon: Wallet,
+                  isWallet: true
+                },
+                { id: 'cod', label: 'Tiền Mặt (COD)', sub: 'Trả tiền khi nhận gà nóng', icon: DollarSign },
+                { id: 'vietqr', label: 'Quét Mã VietQR', sub: 'Chuyển khoản tự động 24/7', icon: QrCode },
+                { id: 'momo', label: 'Ví MoMo / ZaloPay', sub: 'Thanh toán 1 chạm', icon: ShieldCheck },
               ].map((p) => {
                 const isSelected = paymentMethod === p.id;
                 const Icon = p.icon;
@@ -193,7 +229,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                     key={p.id}
                     type="button"
                     onClick={() => setPaymentMethod(p.id as any)}
-                    className={`p-3 rounded-2xl text-left border transition-all ${
+                    className={`p-3 rounded-2xl text-left border transition-all relative ${
                       isSelected
                         ? 'bg-red-50 border-red-500 shadow-sm'
                         : 'bg-zinc-50 border-zinc-200 text-zinc-600 hover:border-zinc-300'
@@ -203,38 +239,87 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                       <Icon className={`w-4 h-4 ${isSelected ? 'text-red-600' : 'text-zinc-500'}`} />
                       <span className="font-extrabold text-xs text-zinc-900">{p.label}</span>
                     </div>
-                    <p className="text-[10px] text-zinc-500">{p.sub}</p>
+                    <p className={`text-[10px] ${p.isWallet && walletBalance < total ? 'text-red-600 font-bold' : 'text-zinc-500'}`}>
+                      {p.sub}
+                    </p>
                   </button>
                 );
               })}
             </div>
+
+            {/* Thông báo nếu ví không đủ số dư */}
+            {isWalletInsufficient && (
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-300 flex items-center justify-between text-xs text-amber-900">
+                <span>Số dư ví không đủ để thanh toán đơn này.</span>
+                <button
+                  type="button"
+                  onClick={onOpenWallet}
+                  className="font-extrabold text-red-600 underline ml-2"
+                >
+                  Nạp tiền ngay →
+                </button>
+              </div>
+            )}
+
+            {/* Chi tiết chuyển khoản nếu chọn VietQR */}
+            {paymentMethod === 'vietqr' && (
+              <div className="p-4 rounded-2xl bg-stone-50 border-2 border-red-500 space-y-3 text-xs animate-in fade-in duration-200">
+                <div className="flex items-center justify-between border-b border-zinc-200 pb-2">
+                  <div className="flex items-center gap-2 font-extrabold text-zinc-900">
+                    <QrCode className="w-4 h-4 text-red-600" />
+                    <span>Mã QR Chuyển Khoản TPBank (Hết hạn sau 30 phút)</span>
+                  </div>
+                  <span className="font-mono font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded text-[11px]">
+                    30:00
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <img
+                    src="/assets/aistudio/1e40683a-d4e6-4f9c-931d-7b3ccb55b1da_7813f039.jfif"
+                    alt="Mã QR TPBank"
+                    className="w-20 h-auto rounded-lg border border-red-300 shadow-2xs"
+                  />
+                  <div className="space-y-0.5 text-[11px]">
+                    <div className="font-extrabold text-zinc-900">Ngân hàng TPBank (Tiên Phong)</div>
+                    <div>Chủ TK: <strong className="text-red-600">LE TRUONG MINH</strong></div>
+                    <div>STK: <strong className="font-mono text-zinc-900">0376 4688 888</strong></div>
+                    <div className="text-zinc-500 mt-1 italic">
+                      * Sau khi bấm Đặt hàng, bạn có thể xem lại mã QR và đếm ngược 30 phút trong mục &quot;Xem Đơn Hàng&quot;.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Order Summary Recap */}
+          {/* Chi tiết đơn hàng */}
           <div className="bg-stone-50 p-4 rounded-2xl border border-zinc-200 space-y-2 text-xs">
             <div className="flex justify-between text-zinc-600">
-              <span>Items count:</span>
-              <span className="text-zinc-900 font-bold">{items.length} items</span>
+              <span>Số lượng món:</span>
+              <span className="text-zinc-900 font-bold">{items.length} món</span>
             </div>
             <div className="flex justify-between text-zinc-600">
-              <span>Subtotal:</span>
-              <span className="text-zinc-900 font-mono font-bold">${subtotal.toFixed(2)}</span>
+              <span>Tổng tiền món:</span>
+              <span className="text-zinc-900 font-mono font-bold">{subtotal.toLocaleString('vi-VN')} ₫</span>
             </div>
             {discount > 0 && (
               <div className="flex justify-between text-emerald-700 font-bold">
-                <span>Discount Promo:</span>
-                <span className="font-mono">-${discount.toFixed(2)}</span>
+                <span>Voucher giảm giá:</span>
+                <span className="font-mono">-{discount.toLocaleString('vi-VN')} ₫</span>
               </div>
             )}
             <div className="flex justify-between text-zinc-600">
-              <span>Delivery Fee:</span>
+              <span>Phí vận chuyển:</span>
               <span className="text-zinc-900 font-mono font-bold">
-                {deliveryFee === 0 ? 'FREE' : `$${deliveryFee.toFixed(2)}`}
+                {deliveryFee === 0 ? 'MIỄN PHÍ' : `${deliveryFee.toLocaleString('vi-VN')} ₫`}
               </span>
             </div>
             <div className="flex justify-between text-sm font-extrabold text-zinc-950 pt-2 border-t border-zinc-200">
-              <span>Total Payment:</span>
-              <span className="text-red-600 font-mono text-lg font-extrabold">${total.toFixed(2)}</span>
+              <span>Tổng số tiền thanh toán:</span>
+              <span className="text-red-600 font-mono text-lg font-extrabold">
+                {total.toLocaleString('vi-VN')} ₫
+              </span>
             </div>
           </div>
 
@@ -245,17 +330,19 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             className="w-full py-4 rounded-2xl bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-extrabold text-base shadow-xl shadow-red-600/30 hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 border border-red-700"
           >
             {isSubmitting ? (
-              <span>Placing Order with Kitchen...</span>
+              <span>Đang gửi đơn tới nhà bếp KFC...</span>
+            ) : isWalletInsufficient ? (
+              <span>Nạp Tiền Vào Ví Để Thanh Toán</span>
             ) : (
               <>
-                <span>Place Order • ${total.toFixed(2)}</span>
+                <span>Xác Nhận Đặt Hàng • {total.toLocaleString('vi-VN')} ₫</span>
                 <ArrowRight className="w-5 h-5" />
               </>
             )}
           </button>
 
           <p className="text-[11px] text-center text-zinc-500 font-medium">
-            🔒 Safe & encrypted checkout. 100% crispy hot guarantee on arrival.
+            🔒 Đảm bảo 100% gà rán giao nóng giòn tận nơi trong 30 phút.
           </p>
 
         </form>
