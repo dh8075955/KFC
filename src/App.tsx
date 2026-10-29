@@ -47,13 +47,15 @@ export default function App() {
     },
   ]);
 
-  // Order History State (Khởi tạo sẵn 1 đơn hàng đang giao để khách kiểm tra ngay)
+  // Order History State (Khởi tạo sẵn 2 đơn hàng đang giao đồng thời để khách kiểm tra và nhận nhiều đơn)
   const [orderHistory, setOrderHistory] = useState<OrderDetails[]>([
     {
       orderId: 'KFC-839210',
+      orderTitle: 'Combo Gà Giòn 1 Người (x2)',
       customerName: 'Nguyễn Văn Minh',
       phone: '0988 123 456',
       address: 'Số 128 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+      notes: 'Giao lên tầng 3 phòng 302, gọi điện trước khi đến',
       orderType: 'delivery',
       items: [
         {
@@ -69,7 +71,8 @@ export default function App() {
       discount: 25000,
       deliveryFee: 0,
       total: 153000,
-      paymentMethod: 'wallet',
+      paymentMethod: 'vietqr',
+      isPaid: false,
       status: 'delivering',
       placedAt: '20:45',
       estimatedDeliveryMins: 20,
@@ -78,6 +81,40 @@ export default function App() {
         name: 'Nguyễn Văn Cường',
         phone: '0912 888 999',
         vehicle: 'Honda Wave • Thùng đỏ KFC',
+      },
+    },
+    {
+      orderId: 'KFC-591240',
+      orderTitle: 'Xô Gà Tiệc Tùng 5 Miếng + Khoai Tây',
+      customerName: 'Trần Hoàng Lan',
+      phone: '0903 456 789',
+      address: 'Tầng 12, Tòa nhà Bitexco, 02 Hải Triều, Bến Nghé, Quận 1, TP. Hồ Chí Minh',
+      notes: 'Để ở quầy lễ tân tầng 1 nếu không gọi được',
+      orderType: 'delivery',
+      items: [
+        {
+          cartId: 'item-demo-2',
+          item: KFC_MENU_ITEMS[3], // Xô Gà Tiệc Tùng 5 Miếng
+          quantity: 1,
+          recipe: 'crispy_spicy',
+          selectedSauces: ['Sốt Bí Truyền Colonel', 'Tương Cà KFC'],
+          totalPrice: 245000,
+        },
+      ],
+      subtotal: 245000,
+      discount: 0,
+      deliveryFee: 0,
+      total: 245000,
+      paymentMethod: 'wallet',
+      isPaid: true,
+      status: 'cooking',
+      placedAt: '20:55',
+      estimatedDeliveryMins: 25,
+      estimatedDeliveryTime: '21:25',
+      courier: {
+        name: 'Lê Quốc Tuấn',
+        phone: '0938 777 666',
+        vehicle: 'Yamaha Sirius • Thùng đỏ KFC',
       },
     },
   ]);
@@ -311,6 +348,26 @@ export default function App() {
     showToast(`Đã ghi nhận chuyển khoản cho đơn #${orderId}! Nhà bếp đang chuẩn bị gà. 🍗`);
   };
 
+  const handleMarkOrderReceived = (orderId: string) => {
+    setOrderHistory((prev) =>
+      prev.map((ord) => {
+        if (ord.orderId === orderId) {
+          return { ...ord, status: 'delivered' };
+        }
+        return ord;
+      })
+    );
+    showToast(`Đã nhận đơn hàng #${orderId} thành công! Chúc bạn ngon miệng với gà rán KFC! 🍗`);
+  };
+
+  const handleMarkAllReceived = () => {
+    const deliveringCount = orderHistory.filter((o) => o.status !== 'delivered').length;
+    setOrderHistory((prev) =>
+      prev.map((ord) => (ord.status !== 'delivered' ? { ...ord, status: 'delivered' } : ord))
+    );
+    showToast(`Đã nhận tất cả ${deliveringCount} đơn hàng thành công! Cảm ơn bạn đã ủng hộ KFC! 🍗🎉`);
+  };
+
   const handleTrackSpecificOrder = (order: OrderDetails) => {
     setActiveTrackingOrder(order);
     setIsOrderTrackerOpen(true);
@@ -395,25 +452,25 @@ export default function App() {
         {/* Active section title */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 pb-4 border-b border-zinc-200 gap-2">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-display uppercase tracking-wide text-zinc-950 flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-950 flex items-center gap-2">
               <span>
                 {selectedCategory === 'all'
-                  ? 'THỰC ĐƠN GÀ RÁN KFC VIỆT NAM'
+                  ? 'Thực đơn Gà Rán KFC Việt Nam'
                   : selectedCategory === 'combos'
-                  ? 'COMBO GÀ RÁN TIẾT KIỆM'
+                  ? 'Combo Gà Rán Tiết Kiệm'
                   : selectedCategory === 'buckets'
-                  ? 'XÔ GÀ TIỆC TÙNG HOÀNH TRÁNG'
+                  ? 'Xô Gà Tiệc Tùng Hoành Tráng'
                   : selectedCategory === 'chicken'
-                  ? 'GÀ RÁN GIÒN CAY & CÁNH GÀ'
+                  ? 'Gà Rán Giòn Cay & Cánh Gà'
                   : selectedCategory === 'burgers'
-                  ? 'BURGER ZINGER & BURGER TÔM'
+                  ? 'Burger Zinger & Burger Tôm'
                   : selectedCategory === 'rice'
-                  ? 'CƠM GÀ KFC CHUẨN VỊ VIỆT'
+                  ? 'Cơm Gà KFC Chuẩn Vị Việt'
                   : selectedCategory === 'sides'
-                  ? 'KHOAI TÂY & BÁNH TRỨNG NƯỚNG'
-                  : 'THỨC UỐNG & KEM MÁT LẠNH'}
+                  ? 'Khoai Tây & Bánh Trứng Nướng'
+                  : 'Thức Uống & Tráng Miệng'}
               </span>
-              <span className="text-red-600 font-sans font-extrabold text-sm">
+              <span className="text-red-600 font-sans font-bold text-sm">
                 ({filteredItems.length} món)
               </span>
             </h2>
@@ -524,8 +581,12 @@ export default function App() {
         onClose={() => setIsOrderTrackerOpen(false)}
         onNewOrder={() => {
           setIsOrderTrackerOpen(false);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          const menuElem = document.getElementById('menu-section');
+          menuElem?.scrollIntoView({ behavior: 'smooth' });
         }}
+        activeOrders={orderHistory}
+        onSelectOrder={setActiveTrackingOrder}
+        onMarkDelivered={handleMarkOrderReceived}
       />
 
       {/* 6. Wallet Modal (Nạp tiền & Ví KFC Pay) */}
@@ -556,6 +617,12 @@ export default function App() {
         onTrackOrder={handleTrackSpecificOrder}
         onReorder={handleReorder}
         onConfirmPayment={handleConfirmPayment}
+        onAddNewOrderPrompt={() => {
+          const menuElem = document.getElementById('menu-section');
+          menuElem?.scrollIntoView({ behavior: 'smooth' });
+        }}
+        onMarkOrderReceived={handleMarkOrderReceived}
+        onMarkAllReceived={handleMarkAllReceived}
       />
 
       {/* 9. Voucher & Mã giảm giá Modal */}

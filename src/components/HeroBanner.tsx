@@ -31,19 +31,18 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({
             </div>
 
             {/* Headline */}
-            <h1 className="text-4xl sm:text-6xl xl:text-7xl font-display uppercase tracking-tight text-zinc-950 leading-[1.05]">
-              GIÒN RỤM, MỌNG NƯỚC, <br />
-              <span className="text-red-600 underline decoration-amber-400 decoration-wavy decoration-4">
-                VỊ NGON TRÊN
-              </span> <br />
-              TỪNG NGÓN TAY.
+            <h1 className="text-3xl sm:text-5xl xl:text-6xl font-bold tracking-tight text-zinc-950 leading-[1.15]">
+              Giòn rụm, mọng nước, <br />
+              <span className="text-red-600 underline decoration-red-200 decoration-wavy decoration-3">
+                vị ngon trên từng ngón tay.
+              </span>
             </h1>
 
             {/* Subtitle */}
-            <p className="text-zinc-600 text-base sm:text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
+            <p className="text-zinc-600 text-sm sm:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed font-normal">
               Gà rán tươi nguyên bản tẩm bột thủ công trực tiếp tại bếp mỗi ngày. 
-              Chiên áp suất giữ trọn độ mềm mọng nước bên trong và lớp da giòn tan nức tiếng. 
-              Giao hàng tận nơi siêu tốc 30 phút nóng hổi đến tay bạn.
+              Chiên áp suất giữ trọn vị mềm ngọt bên trong và lớp da giòn tan nức tiếng. 
+              Giao hàng tận nơi siêu tốc trong 30 phút.
             </p>
 
             {/* CTAs */}
